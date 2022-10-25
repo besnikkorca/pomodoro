@@ -4,10 +4,10 @@
     <div>
       <label for="pause"
         >Pause
-        <input id="pause" type="number" v-model="pause" />
+        <input id="pause" type="number" v-bind:value="pause" v-on:input="setPause" />
       </label>
       <label for="work">
-        <input id="work" type="number" v-model="work" />
+        <input id="work" type="number" v-bind:value="work" v-on:input="setWork" />
       </label>
       <button>Test 123</button>
     </div>
@@ -20,7 +20,15 @@ import { mapState } from 'vuex';
 
 @Options({
   name: 'PomodoroApp',
-  computed: mapState(['pause', 'work']),
+  computed: mapState(['work', 'pause']),
+  methods: {
+    setWork(event: Event) {
+      this.$store.commit('setWork', (event.target as HTMLInputElement).value);
+    },
+    setPause(event: Event) {
+      this.$store.commit('setPause', (event.target as HTMLInputElement).value);
+    },
+  },
   data() {
     return {
       description: `Pomodoro technique is used to increase productivity by breaking down work into intervals,
@@ -29,6 +37,10 @@ import { mapState } from 'vuex';
   },
 })
 export default class PomodoroApp extends Vue {
+  setWork!: (event: InputEvent) => void;
+
+  setPause!: () => void;
+
   description!: string;
 
   pause!: number;

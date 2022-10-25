@@ -6,7 +6,14 @@ export default createStore({
     work: 25,
   },
   getters: {},
-  mutations: {},
+  mutations: {
+    setPause(state, payload) {
+      state.pause = payload;
+    },
+    setWork(state, payload) {
+      state.work = payload;
+    },
+  },
   actions: {},
   modules: {},
 });
