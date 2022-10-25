@@ -1,10 +1,31 @@
 <template>
   <nav>
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
+    <router-link v-for="(route, index) in routes" :key="route.name" v-bind:to="route.path"
+      >{{ route.name }}{{ index < routes.length - 1 ? ' | ' : '' }}</router-link
+    >
   </nav>
-  <router-view/>
+  <router-view />
 </template>
+
+<script lang="ts">
+import { Vue, Options } from 'vue-class-component';
+
+@Options({
+  name: 'App',
+  data() {
+    return {
+      routes: [
+        { name: 'Home', path: '/' },
+        { name: 'About', path: '/about' },
+        { name: 'Pomodoro', path: '/pomodoro' },
+      ],
+    };
+  },
+})
+export default class App extends Vue {
+  routes!: { name: string; path: string }[];
+}
+</script>
 
 <style lang="scss">
 #app {
