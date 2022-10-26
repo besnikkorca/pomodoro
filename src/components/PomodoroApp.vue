@@ -1,7 +1,7 @@
 <template>
   <article>
     {{ description }}
-    <form v-on:submit.prevent="start">
+    <form v-on:submit.prevent="handleStart">
       <label for="pause"
         >Pause:
         <input
@@ -15,7 +15,12 @@
         Work:
         <input id="work" type="number" v-bind:value="workInMinutes" v-on:input="setWorkInMinutes" />
       </label>
+      <div v-if="started">{{ session === 'work' ? 'Focus...' : 'Relax...' }}</div>
+      <div>{{ session === 'pause' ? 'Enjoy the couple minutes' : 'Get things done' }}</div>
+      <div v-if="timer">Time left: {{ Math.floor(timer / 60) }}:{{ timer % 60 }}</div>
+      <div v-else>Stoped</div>
       <button>Start</button>
+      <button type="button" v-on:click="handleStop">stop</button>
     </form>
   </article>
 </template>
@@ -27,8 +32,27 @@ import { mapState, mapGetters } from 'vuex';
 @Options({
   name: 'PomodoroApp',
   computed: {
-    ...mapState(['work', 'pause']),
+    ...mapState(['session', 'work', 'pause', 'started', 'timer']),
     ...mapGetters(['pauseInMinutes', 'workInMinutes']),
+  },
+  data() {
+    return {
+      timeout: null,
+      description: `Pomodoro technique is used to increase productivity by breaking down work into intervals,
+      traditionally 25 minutes in length, separated by short breaks.`,
+    };
+  },
+  watch: {
+    started(isStarted) {
+      if (isStarted && !this.timeout) {
+        this.timeout = setInterval(() => {
+          this.$store.dispatch('tick');
+        }, 100);
+      } else if (!isStarted && this.timeout) {
+        clearInterval(this.timeout);
+        this.timeout = null;
+      }
+    },
   },
   methods: {
     setWork(event: Event) {
@@ -43,15 +67,12 @@ import { mapState, mapGetters } from 'vuex';
     setPauseInMinutes(event: Event) {
       this.$store.commit('setPauseInMinutes', (event.target as HTMLInputElement).value);
     },
-    start() {
+    handleStart() {
       this.$store.dispatch('start');
     },
-  },
-  data() {
-    return {
-      description: `Pomodoro technique is used to increase productivity by breaking down work into intervals,
-      traditionally 25 minutes in length, separated by short breaks.`,
-    };
+    handleStop() {
+      this.$store.dispatch('stop');
+    },
   },
 })
 export default class PomodoroApp extends Vue {
@@ -63,9 +84,17 @@ export default class PomodoroApp extends Vue {
 
   setPauseInMinutes!: (event: Event) => void;
 
-  start!: () => void;
+  handleStart!: () => void;
+
+  handleStop!: () => void;
 
   description!: string;
+
+  started!: boolean;
+
+  session!: 'none' | 'pause' | 'work';
+
+  timer!: number;
 
   pause!: number;
 

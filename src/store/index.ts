@@ -10,6 +10,7 @@ export default createStore({
     work: TWENTYFIVE_MINUTES_IN_SECONDS,
     timer: 0,
     session: 'none',
+    started: false,
   },
   getters: {
     pauseInMinutes(state) {
@@ -32,10 +33,51 @@ export default createStore({
     setWorkInMinutes(state, payload) {
       state.work = payload * SECONDS_IN_MINUTE;
     },
+    setSession(state, payload) {
+      state.session = payload;
+    },
+    setIsStarted(state, payload) {
+      state.started = payload;
+    },
+    setTimer(state, payload) {
+      state.timer = payload;
+    },
   },
   actions: {
-    start() {
-      console.log('start');
+    tick({ state, commit }) {
+      if (state.timer > 0) {
+        commit('setTimer', state.timer - 1);
+      } else {
+        const newSession = state.session === 'pause' ? 'work' : 'pause';
+        const timer = newSession === 'pause' ? state.pause : state.work;
+
+        commit('setIsStarted', false);
+        commit('setSession', newSession);
+        commit('setTimer', timer);
+      }
+    },
+    start({ state, commit }) {
+      if (state.session === 'none') {
+        commit('setTimer', state.work);
+        commit('setSession', 'work');
+        commit('setIsStarted', true);
+      } else if (state.session === 'work') {
+        if (state.timer === 0) {
+          commit('setSession', 'pause');
+          commit('setTimer', state.pause);
+        }
+        commit('setIsStarted', true);
+      } else if (state.session === 'pause') {
+        if (state.timer === 0) {
+          commit('setSession', 'work');
+          commit('setTimer', state.work);
+        }
+        commit('setIsStarted', true);
+      }
+    },
+    stop({ state, commit }) {
+      if (state.started === false || state.session === 'none') return;
+      commit('setIsStarted', false);
     },
   },
   modules: {},
