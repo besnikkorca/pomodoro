@@ -1,51 +1,64 @@
 <template>
-  <nav>
-    <router-link v-for="(route, index) in routes" :key="route.name" v-bind:to="route.path"
-      >{{ route.name }}{{ index < routes.length - 1 ? ' | ' : '' }}</router-link
-    >
-  </nav>
-  <router-view />
+  <Header />
+  <main class="content">
+    <router-view />
+  </main>
+  <Footer />
 </template>
 
 <script lang="ts">
 import { Vue, Options } from 'vue-class-component';
+import Header from '@/components/layout/Header.vue';
+import Footer from '@/components/layout/Footer.vue';
 
 @Options({
   name: 'App',
-  data() {
-    return {
-      routes: [
-        { name: 'Home', path: '/' },
-        { name: 'About', path: '/about' },
-        { name: 'Pomodoro', path: '/pomodoro' },
-      ],
-    };
+  components: {
+    Header,
+    Footer,
   },
 })
-export default class App extends Vue {
-  routes!: { name: string; path: string }[];
-}
+export default class App extends Vue {}
 </script>
 
 <style lang="scss">
+:root {
+  --primary-color: #42b983;
+  --secondary-color: #2c3e50;
+  --link-color: #fff;
+  --black-color: #000;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  font-weight: bold;
+  color: var(--link-color);
+
+  &.router-link-exact-active {
+    color: var(--primary-color);
+  }
+}
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+  background-color: var(--primary-color);
+  min-width: 100vw;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-nav {
-  padding: 30px;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
-    }
-  }
+.content {
+  display: flex;
+  align-items: center;
+  flex: 1;
 }
 </style>
